@@ -27,13 +27,21 @@ var game = cc.Layer.extend({
 		background = new ScrollingBG();
 		this.addChild(background);
 		this.scheduleUpdate();
+		this.schedule(this.addAsteroid, 0.5);
 		ship = new Ship();
 		this.addChild(ship);
 	},
 	update:function(dt) {
 		background.scroll();
 		ship.updateY();
-	} 
+	},
+	addAsteroid:function(event) {
+		var asteroid = new Asteroid();
+		this.addChild(asteroid, 1);
+	},
+	removeAsteroid:function(asteroid) {
+		this.removeChild(asteroid);
+	}
 });
 var ScrollingBG = cc.Sprite.extend({
 	ctor:function() {
@@ -66,5 +74,23 @@ var Ship = cc.Sprite.extend({
 		}
 		this.setPosition(this.getPosition().x, this.getPosition().y + this.ySpeed);
 		this.ySpeed += gameGravity;
+	}
+});
+var Asteroid = cc.Sprite.extend({
+	ctor:function() {
+		this._super();
+		this.initWithFile("assets/asteroid.png");
+	},
+	onEnter:function() {
+		this._super();
+		this.setPosition(600, Math.random()*320);
+		var moveAction = cc.MoveTo.create(2.5, new cc.Point(-100, Math.random()*320));
+		this.runAction(moveAction);
+		this.scheduleUpdate();
+	},
+	update:function(dt) {
+		if (this.getPosition().x < -50) {
+			gameLayer.removeAsteroid(this)
+		}
 	}
 });
